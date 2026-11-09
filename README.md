@@ -1,4 +1,4 @@
-# Amigo Secreto (Flask)
+# Amigo Secreto (Flask) — Família Monti
 
 Sistema de amigo secreto em **Python + Flask**, preparado para ficar público na web com foco em segurança no servidor.
 
@@ -8,8 +8,8 @@ Bloquear F12 / Ctrl+U **não é segurança real** — qualquer pessoa consegue v
 A proteção deste sistema é outra:
 
 - resultado do sorteio **criptografado** no banco (AES-GCM + hash HMAC)
-- a pessoa seleciona o **próprio nome** e sorteia (ou vê o resultado se já sorteou)
-- resultado criptografado; o organizador **não vê** quem tirou quem
+- a pessoa seleciona o **próprio nome** e digita a **senha de acesso** (nome + 2 números)
+- o organizador **não vê** quem tirou quem
 - admin com senha + sessão Flask + **CSRF**
 - headers de segurança (CSP, X-Frame-Options, nosniff, etc.)
 - rate limit no sorteio e no login admin
@@ -38,7 +38,9 @@ Bruno Costa
 Carla Mendes
 ```
 
-No site, cada pessoa seleciona o nome e clica em **Ver / Sortear**.
+Ao cadastrar, o sistema gera a senha (ex.: `ana47`). Envie para cada pessoa.
+
+No site: seleciona o nome → digita a senha → **Ver / Sortear**.
 
 ## Variáveis (.env)
 
@@ -46,6 +48,7 @@ Veja `.env.example`. Em produção (Vercel):
 
 - `SESSION_COOKIE_SECURE=true`
 - `FORCE_HTTPS=true`
+
 ## GitHub + Vercel
 
 1. Suba o código (`.env` não vai no Git)
