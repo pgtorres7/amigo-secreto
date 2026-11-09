@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block content %}
+<nav class="top-nav">
+  <a href="{{ url_for('admin.login') }}">Área do organizador</a>
+</nav>
+
+<header class="hero">
+  <h1 class="brand">Amigo Secreto</h1>
+  <p class="brand-subtitle">Família Monti</p>
+  <p class="tagline">
+    Selecione o seu nome, digite sua senha de acesso e sorteie. Se já sorteou, o sistema mostra de novo.
+  </p>
+  <div class="stats">
+    <div class="stat"><strong>{{ stats.total }}</strong><span>Participantes</span></div>
+    <div class="stat"><strong>{{ stats.drawn_count }}</strong><span>Já sortearam</span></div>
+    <div class="stat"><strong>{{ stats.remaining_count }}</strong><span>Faltam</span></div>
+  </div>
+</header>
+
+<section class="panel">
+  <h2>Fazer o sorteio</h2>
+  <p class="lead">Você não pode tirar o próprio nome nem alguém que já foi sorteado.</p>
+
+  {% if error %}
+  <div class="message visible error">{{ error }}</div>
+  {% endif %}
+  {% if success %}
+  <div class="message visible ok">{{ success }}</div>
+  {% endif %}
+
+  {% if receiver_name %}
+  <div class="result visible">
+    <p class="label">{% if participant_name %}{{ participant_name }}, o{% else %}O{% endif %} seu amigo secreto é</p>
+    <p class="name">{{ receiver_name }}</p>
+    <p class="hint">Guarde com carinho e não conte para ninguém.</p>
+  </div>
+  {% endif %}
+
+  <form method="post" action="{{ url_for('main.draw') }}" class="form-row" autocomplete="off" id="draw-form">
+    {{ form.hidden_tag() }}
+    <div>
+      <label for="name">Seu nome</label>
+      {{ form.name(id="name") }}
+    </div>
+    <div id="password-wrap" class="{% if not show_password %}hidden{% endif %}">
+      <label for="access_password">Senha de acesso</label>
+      {{ form.access_password(id="access_password", placeholder="Ex.: ana47", autocomplete="current-password") }}
+      <p class="field-hint">Peça a senha ao organizador (é o seu nome + 2 números).</p>
+    </div>
+    <div class="actions">
+      {{ form.submit(class_="btn btn-primary", id="draw-submit") }}
+    </div>
+  </form>
+</section>
+<script src="{{ url_for('static', filename='js/home.js') }}"></script>
+{% endblock %}

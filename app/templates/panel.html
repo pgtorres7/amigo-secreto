@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block content %}
+<nav class="top-nav">
+  <form method="post" action="{{ url_for('main.logout_participant') }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+    <button type="submit" class="linkish">Sair</button>
+  </form>
+</nav>
+
+<header class="hero">
+  <h1 class="brand">Amigo Secreto</h1>
+  <p class="brand-subtitle">Família Monti</p>
+  <p class="tagline">Olá, {{ participant_name }}. Seu sorteio fica só entre você e o servidor.</p>
+</header>
+
+<section class="panel">
+  <h2>Seu sorteio</h2>
+
+  {% if error %}
+  <div class="message visible error">{{ error }}</div>
+  {% endif %}
+  {% if success %}
+  <div class="message visible ok">{{ success }}</div>
+  {% endif %}
+
+  {% if draw and draw.receiver_name %}
+  <div class="result visible">
+    <p class="label">O seu amigo secreto é</p>
+    <p class="name">{{ draw.receiver_name }}</p>
+    <p class="hint">Pode voltar aqui quando quiser para consultar de novo. Não conte para ninguém.</p>
+  </div>
+  {% else %}
+  <p class="lead">Quando estiver pronto, sorteie. Você não pode tirar a si mesmo nem alguém já sorteado.</p>
+  <form method="post" action="{{ url_for('main.draw') }}" class="actions">
+    {{ form.hidden_tag() }}
+    {{ form.submit(class_="btn btn-primary") }}
+  </form>
+  {% endif %}
+</section>
+{% endblock %}

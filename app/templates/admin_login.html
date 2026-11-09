@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Admin | Amigo Secreto{% endblock %}
+{% block content %}
+<nav class="top-nav">
+  <a href="{{ url_for('main.home') }}">Voltar ao sorteio</a>
+</nav>
+
+<header class="hero">
+  <h1 class="brand">Amigo Secreto</h1>
+  <p class="brand-subtitle">Família Monti</p>
+  <p class="tagline">Acesso restrito do organizador.</p>
+</header>
+
+<section class="panel">
+  <h2>Entrar</h2>
+  {% if error %}
+  <div class="message visible error">{{ error }}</div>
+  {% endif %}
+  <form method="post" action="{{ url_for('admin.login_post') }}" class="form-row" autocomplete="current-password">
+    {{ form.hidden_tag() }}
+    <div>
+      <label for="password">Senha</label>
+      {{ form.password(id="password") }}
+    </div>
+    <div class="actions">
+      {{ form.submit(class_="btn btn-primary") }}
+    </div>
+  </form>
+</section>
+{% endblock %}

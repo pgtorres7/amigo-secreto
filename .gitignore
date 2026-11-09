@@ -1,0 +1,14 @@
+node_modules/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.env
+.DS_Store
+*.log
+.vercel
+.idea/
+.vscode/
+data/store.json
+.pytest_cache/

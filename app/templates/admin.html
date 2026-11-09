@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+{% block title %}Organizador | Amigo Secreto{% endblock %}
+{% block content %}
+<nav class="top-nav">
+  <a href="{{ url_for('main.home') }}">Ver site</a>
+  <form method="post" action="{{ url_for('admin.logout') }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+    <button type="submit" class="linkish">Sair</button>
+  </form>
+</nav>
+
+<header class="hero">
+  <h1 class="brand">Amigo Secreto</h1>
+  <p class="brand-subtitle">Família Monti</p>
+  <p class="tagline">Cadastre os nomes, anote as senhas e acompanhe quem já sorteou.</p>
+  <div class="stats">
+    <div class="stat"><strong>{{ stats.total }}</strong><span>Participantes</span></div>
+    <div class="stat"><strong>{{ stats.drawn_count }}</strong><span>Já sortearam</span></div>
+    <div class="stat"><strong>{{ stats.remaining_count }}</strong><span>Faltam</span></div>
+  </div>
+</header>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    {% for category, message in messages %}
+      <div class="message visible {{ 'ok' if category == 'ok' else 'error' }}">{{ message }}</div>
+    {% endfor %}
+  {% endif %}
+{% endwith %}
+
+{% if issued_passwords %}
+<section class="panel">
+  <h2>Senhas geradas agora</h2>
+  <p class="lead">Envie para cada pessoa. Formato: nome + 2 números (ex.: <strong>ana47</strong>).</p>
+  <ul class="list">
+    {% for item in issued_passwords %}
+    <li>
+      <div class="meta">
+        <strong>{{ item.name }}</strong>
+        <small>Senha: <strong>{{ item.password }}</strong></small>
+      </div>
+    </li>
+    {% endfor %}
+  </ul>
+</section>
+{% endif %}
+
+<div class="admin-grid">
+  <section class="panel">
+    <h2>Cadastrar participantes</h2>
+    <p class="lead">Um nome por linha. Opcional: <strong>Nome, telefone</strong></p>
+    <form method="post" action="{{ url_for('admin.participants_add') }}" class="form-row">
+      {{ add_form.hidden_tag() }}
+      <div>
+        <label for="names">Lista</label>
+        {{ add_form.names(id="names", rows="8", placeholder="Ana Silva&#10;Bruno Costa&#10;Carla Mendes") }}
+      </div>
+      <div class="actions">
+        {{ add_form.submit(class_="btn btn-primary") }}
+      </div>
+    </form>
+  </section>
+
+  <section class="panel">
+    <h2>Participantes</h2>
+    <p class="lead">{{ participants|length }} cadastrado(s). O organizador não vê quem tirou quem.</p>
+    <ul class="list">
+      {% for person in participants %}
+      <li>
+        <div class="meta">
+          <strong>{{ person.name }}</strong>
+          <small>
+            {% if person.phone and person.phone != '-' %}{{ person.phone }} · {% endif %}
+            {% if person.has_drawn %}Já sorteou{% else %}Pendente{% endif %}
+            {% if not person.has_token %} · sem senha{% endif %}
+          </small>
+        </div>
+        <div class="row-actions">
+          <span class="badge {{ 'done' if person.has_drawn else 'pending' }}">
+            {{ 'Sorteou' if person.has_drawn else 'Pendente' }}
+          </span>
+          <form method="post" action="{{ url_for('admin.participants_password', participant_id=person.id) }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+            <button class="btn btn-secondary" type="submit">Nova senha</button>
+          </form>
+          <form method="post" action="{{ url_for('admin.participants_delete', participant_id=person.id) }}" data-confirm="Remover participante?">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+            <button class="btn btn-danger" type="submit">Remover</button>
+          </form>
+        </div>
+      </li>
+      {% else %}
+      <li><div class="meta"><strong>Nenhum participante ainda</strong></div></li>
+      {% endfor %}
+    </ul>
+
+    <div class="actions">
+      <form method="post" action="{{ url_for('admin.reset') }}" data-confirm="Reiniciar sorteios?">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+        <button class="btn btn-secondary" type="submit">Reiniciar sorteios</button>
+      </form>
+      <form method="post" action="{{ url_for('admin.wipe') }}" data-confirm="Apagar tudo?">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+        <button class="btn btn-danger" type="submit">Limpar tudo</button>
+      </form>
+    </div>
+  </section>
+</div>
+<script src="{{ url_for('static', filename='js/admin.js') }}"></script>
+{% endblock %}
