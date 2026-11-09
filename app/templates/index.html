@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Amigo Secreto | Família Monti</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&family=Figtree:wght@400;550;650&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/static/css/styles.css" />
+  </head>
+  <body>
+    <main class="page">
+      <!-- SORTEIO -->
+      <section id="view-draw">
+        <nav class="top-nav">
+          <button type="button" class="linkish" id="go-admin">Área do organizador</button>
+        </nav>
+
+        <header class="hero">
+          <h1 class="brand">Amigo Secreto</h1>
+          <p class="brand-subtitle">Família Monti</p>
+          <p class="tagline">
+            Selecione o seu nome, digite sua senha de acesso e sorteie. Se já sorteou, o sistema mostra de novo.
+          </p>
+          <div class="stats">
+            <div class="stat"><strong id="stat-total">0</strong><span>Participantes</span></div>
+            <div class="stat"><strong id="stat-drawn">0</strong><span>Já sortearam</span></div>
+            <div class="stat"><strong id="stat-remaining">0</strong><span>Faltam</span></div>
+          </div>
+        </header>
+
+        <section class="panel">
+          <h2>Fazer o sorteio</h2>
+          <p class="lead">Você não pode tirar o próprio nome nem alguém que já foi sorteado.</p>
+          <div id="draw-message" class="message" role="status"></div>
+          <div id="draw-result" class="result">
+            <p class="label" id="result-label">O seu amigo secreto é</p>
+            <p class="name" id="result-name"></p>
+            <p class="hint">Guarde com carinho e não conte para ninguém.</p>
+          </div>
+
+          <form id="draw-form" class="form-row" autocomplete="off">
+            <div>
+              <label for="participant-name">Seu nome</label>
+              <select id="participant-name" required>
+                <option value="">Selecione o seu nome</option>
+              </select>
+            </div>
+            <div id="password-wrap" class="hidden">
+              <label for="access-password">Senha de acesso</label>
+              <input id="access-password" type="password" placeholder="Ex.: ana47" autocomplete="current-password" />
+              <p class="field-hint">Peça a senha ao organizador (é o seu nome + 2 números).</p>
+            </div>
+            <div class="actions">
+              <button type="submit" class="btn btn-primary" id="draw-btn">Ver / Sortear</button>
+            </div>
+          </form>
+        </section>
+      </section>
+
+      <!-- ADMIN LOGIN -->
+      <section id="view-admin-login" class="hidden">
+        <nav class="top-nav">
+          <button type="button" class="linkish" id="back-draw-1">Voltar ao sorteio</button>
+        </nav>
+        <header class="hero">
+          <h1 class="brand">Amigo Secreto</h1>
+          <p class="brand-subtitle">Família Monti</p>
+          <p class="tagline">Acesso restrito do organizador.</p>
+        </header>
+        <section class="panel">
+          <h2>Entrar</h2>
+          <div id="login-message" class="message" role="status"></div>
+          <form id="admin-login-form" class="form-row">
+            <div>
+              <label for="admin-password">Senha</label>
+              <input id="admin-password" type="password" autocomplete="current-password" required />
+            </div>
+            <div class="actions">
+              <button type="submit" class="btn btn-primary">Entrar</button>
+            </div>
+          </form>
+        </section>
+      </section>
+
+      <!-- ADMIN PANEL -->
+      <section id="view-admin" class="hidden">
+        <nav class="top-nav">
+          <button type="button" class="linkish" id="back-draw-2">Ver site</button>
+          <button type="button" class="linkish" id="admin-logout">Sair</button>
+        </nav>
+        <header class="hero">
+          <h1 class="brand">Amigo Secreto</h1>
+          <p class="brand-subtitle">Família Monti</p>
+          <p class="tagline">Cadastre os nomes, anote as senhas e acompanhe quem já sorteou.</p>
+          <div class="stats">
+            <div class="stat"><strong id="admin-stat-total">0</strong><span>Participantes</span></div>
+            <div class="stat"><strong id="admin-stat-drawn">0</strong><span>Já sortearam</span></div>
+            <div class="stat"><strong id="admin-stat-remaining">0</strong><span>Faltam</span></div>
+          </div>
+        </header>
+
+        <div id="admin-message" class="message" role="status"></div>
+        <div id="issued-passwords" class="panel hidden">
+          <h2>Senhas geradas agora</h2>
+          <p class="lead">Envie para cada pessoa. Formato: nome + 2 números (ex.: <strong>ana47</strong>).</p>
+          <ul id="issued-list" class="list"></ul>
+        </div>
+
+        <div class="admin-grid">
+          <section class="panel">
+            <h2>Cadastrar participantes</h2>
+            <p class="lead">Um nome por linha.</p>
+            <form id="add-form" class="form-row">
+              <div>
+                <label for="names-input">Lista</label>
+                <textarea id="names-input" rows="8" placeholder="Ana Silva&#10;Bruno Costa&#10;Carla Mendes" required></textarea>
+              </div>
+              <div class="actions">
+                <button type="submit" class="btn btn-primary">Adicionar à lista</button>
+              </div>
+            </form>
+          </section>
+
+          <section class="panel">
+            <h2>Participantes</h2>
+            <p class="lead" id="list-summary">Nenhum nome cadastrado ainda.</p>
+            <ul id="participants-list" class="list"></ul>
+            <div class="actions">
+              <button type="button" class="btn btn-secondary" id="reset-draws-btn">Reiniciar sorteios</button>
+              <button type="button" class="btn btn-danger" id="clear-all-btn">Limpar tudo</button>
+            </div>
+          </section>
+        </div>
+      </section>
+    </main>
+
+    <script src="/static/js/app.js"></script>
+  </body>
+</html>

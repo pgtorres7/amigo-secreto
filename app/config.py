@@ -23,17 +23,22 @@ class Config:
     SESSION_COOKIE_NAME = "amigo_sess"
     SESSION_COOKIE_HTTPONLY = True
     SESSION_COOKIE_SAMESITE = "Lax"
-    SESSION_COOKIE_SECURE = _bool(os.getenv("SESSION_COOKIE_SECURE"), default=False)
+    SESSION_COOKIE_SECURE = _bool(
+        os.getenv("SESSION_COOKIE_SECURE"),
+        default=bool(os.getenv("VERCEL")),
+    )
     PERMANENT_SESSION_LIFETIME = timedelta(hours=8)
     SESSION_REFRESH_EACH_REQUEST = True
 
     WTF_CSRF_TIME_LIMIT = 8 * 60 * 60
     WTF_CSRF_HEADERS = ["X-CSRFToken", "X-CSRF-Token"]
+    # Evita 400 "referrer header is missing" atrás de proxy/Vercel
+    WTF_CSRF_SSL_STRICT = False
 
     PARTICIPANT_COOKIE_NAME = "amigo_part"
     PARTICIPANT_COOKIE_MAX_AGE = 60 * 60 * 24 * 30
 
-    FORCE_HTTPS = _bool(os.getenv("FORCE_HTTPS"), default=False)
+    FORCE_HTTPS = _bool(os.getenv("FORCE_HTTPS"), default=bool(os.getenv("VERCEL")))
     PREFERRED_URL_SCHEME = "https" if FORCE_HTTPS or SESSION_COOKIE_SECURE else "http"
 
     DB_HOST = os.getenv("DB_HOST")

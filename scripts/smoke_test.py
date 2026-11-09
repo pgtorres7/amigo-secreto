@@ -1,70 +1,45 @@
-import re
-
 import requests
 
 BASE = "http://127.0.0.1:3000"
 
 
-def csrf(html: str) -> str:
-    m = re.search(r'name="csrf_token"[^>]*value="([^"]+)"', html)
-    return m.group(1)
-
-
 def main() -> None:
     s = requests.Session()
-    login = s.get(f"{BASE}/admin/login")
-    s.post(
-        f"{BASE}/admin/login",
-        data={"csrf_token": csrf(login.text), "password": "natal2026", "submit": "Entrar"},
-        allow_redirects=True,
-    )
-    dash = s.get(f"{BASE}/admin/")
-    s.post(f"{BASE}/admin/limpar", data={"csrf_token": csrf(dash.text)}, allow_redirects=True)
-    dash = s.get(f"{BASE}/admin/")
+    csrf = s.get(f"{BASE}/api/csrf").json()["csrf_token"]
+    headers = {"X-CSRFToken": csrf, "Content-Type": "application/json"}
+
+    assert s.get(f"{BASE}/").status_code == 200
+    assert s.get(f"{BASE}/sortear").status_code == 200
+    assert "Família Monti" in s.get(f"{BASE}/").text
+
+    s.post(f"{BASE}/api/admin/login", headers=headers, json={"password": "natal2026"}).raise_for_status()
+    csrf = s.get(f"{BASE}/api/csrf").json()["csrf_token"]
+    headers["X-CSRFToken"] = csrf
+
+    s.post(f"{BASE}/api/admin/clear-all", headers=headers, json={}).raise_for_status()
     add = s.post(
-        f"{BASE}/admin/participantes",
-        data={
-            "csrf_token": csrf(dash.text),
-            "names": "Ana Silva\nBruno Costa\nCarla Mendes",
-            "submit": "Adicionar à lista",
-        },
-        allow_redirects=True,
+        f"{BASE}/api/admin/participants",
+        headers=headers,
+        json={"names": "Ana Silva\nBruno Costa\nCarla Mendes"},
     )
-    pairs = re.findall(
-        r"<strong>([^<]+)</strong>\s*<small>Senha: <strong>([^<]+)</strong></small>",
-        add.text,
-    )
-    print("pairs", pairs)
-    assert len(pairs) >= 3
-    ana_pass = next(pw for name, pw in pairs if name == "Ana Silva")
+    add.raise_for_status()
+    passwords = {p["name"]: p["password"] for p in add.json()["passwords"]}
 
-    u = requests.Session()
-    page = u.get(f"{BASE}/")
-    bad = u.post(
-        f"{BASE}/sortear",
-        data={
-            "csrf_token": csrf(page.text),
-            "name": "Ana Silva",
-            "access_password": "errada99",
-            "submit": "Ver / Sortear",
-        },
-        allow_redirects=True,
+    bad = s.post(
+        f"{BASE}/api/sortear",
+        headers=headers,
+        json={"name": "Ana Silva", "password": "errada99"},
     )
-    assert "incorreta" in bad.text.lower(), bad.text[:500]
+    assert bad.status_code == 401
 
-    page = u.get(f"{BASE}/")
-    ok = u.post(
-        f"{BASE}/sortear",
-        data={
-            "csrf_token": csrf(page.text),
-            "name": "Ana Silva",
-            "access_password": ana_pass,
-            "submit": "Ver / Sortear",
-        },
-        allow_redirects=True,
+    ok = s.post(
+        f"{BASE}/api/sortear",
+        headers=headers,
+        json={"name": "Ana Silva", "password": passwords["Ana Silva"]},
     )
-    assert "amigo secreto é" in ok.text.lower()
-    print("smoke ok", ana_pass)
+    ok.raise_for_status()
+    assert ok.json()["receiver"]
+    print("smoke ok")
 
 
 if __name__ == "__main__":
